@@ -1,7 +1,7 @@
 ---
 title: "are-yelp-reviews-providing-insight-to-restaurants-closing-down"
 description: |
-  Exploring the customer satisfaction of restaurants and in the impact of the restaurant’s operating status.
+  Both big restaurant corporations and small business owners can understand how market demands influence the success of their restaurant, and apply this research to their own restaurant. Policymakers can also understand what factors they should focus on when trying to help restaurants stay open during hard times like COVID-19.
 author:
   - name: Dayvonn Jones
     url: https://dayvonnjones.netlify.app

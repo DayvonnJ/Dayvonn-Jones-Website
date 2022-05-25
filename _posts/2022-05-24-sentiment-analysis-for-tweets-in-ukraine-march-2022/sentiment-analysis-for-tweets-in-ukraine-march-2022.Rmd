@@ -1,7 +1,7 @@
 ---
 title: "sentiment-analysis-for-tweets-in-ukraine-march-2022"
 description: |
-  A short description of the post.
+  Twitter is one of the many organizations and social media platforms that have been exploited by and misused by organizers and supporters on either side of the conflict. People hope to use the platform to express beliefs and ideas that are not verified or peer-reviewed. Textual data were collected to observe negative and positive sentiments in the collection of tweets during March 2022 about the conflict in Ukraine. It can come from a popular outlet or an unverified user. The data was cleaned and then categorized to extract sentiments from the textual data. The sentiments and ideas expressed were visualized with a dashboard.
 author:
   - name: Dayvonn Jones
     url: https://dayvonnjones.netlify.app
