@@ -1,0 +1,188 @@
+---
+title: "sentiment-analysis-for-tweets-in-ukraine-march-2022"
+description: |
+  A short description of the post.
+author:
+  - name: Dayvonn Jones
+    url: https://dayvonnjones.netlify.app
+date: 2022-05-24
+output:
+  distill::distill_article:
+    self_contained: false
+    
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    social: menu
+    source_code: embed
+    theme: readable
+---
+#Library Set UP#
+```{r}
+library(flexdashboard)
+library(tidyverse,quietly=T)
+library(data.table,quietly=T)
+library(htmltools)
+library(htmlTable,quietly=T)
+library(viridis,quietly=T)
+library(plotly,quietly=T)
+library(scales,quietly=T)
+library(crosstalk)
+library(maps)
+library(flexdashboard)
+library(shiny)
+library(knitr)
+library(kableExtra)
+library(tidyverse)
+library(plotly)
+library(crosstalk)
+library(bslib)
+library(shiny)
+library(tidyverse)
+library(quanteda)
+library(quanteda.textplots)
+library(sentimentr)
+library(viridis)
+library(dplyr)
+library(tidytext)
+library(textdata)
+library(stringr)
+library(janeaustenr)
+library(esquisse)
+library(ggplot2)
+library(plotly)
+library(quantmod)
+library(lubridate)
+library(wordcloud)
+library(sentiment.ai)
+```
+
+About {data-navmenu="Explore"}
+===================================== 
+
+Column {data-width=200}
+-------------------------------------
+
+#About this Flex Dashboard#
+Textual data analysis is an emerging field of NLP; This dashboard is an approach to understanding the sentiments and emotions of people in the war-zoned country using Twitter textual data. This dashboard is also an attempt to visualize the data efficiently and beautifully.
+
+Column {data-width=800}
+-------------------------------------
+
+#Areas that are Covered#
+```{r jan222017-map1,echo=F}
+emotion <-read.csv("/Users/dayvonnjones/Documents/Data Visualization Final Project/emotion.csv")
+sentiment <-read.csv("/Users/dayvonnjones/Documents/Data Visualization Final Project/sentiment.csv")
+uk <- readxl::read_xlsx("/Users/dayvonnjones/Documents/Data Visualization Final Project/ukraine.xlsx")
+uk <- rename(uk, Date = ï..Data.created_at)
+shared_data <- uk %>%
+  select(Date, sentiment.x, class.x, Data.retweet_count, Data.full_text, Data.user.screen_name, Data.url, phrase.x, Data.user.location) %>%
+  mutate(sentiment.x = round(sentiment.x, 4)) %>%
+  SharedData$new()
+
+p <- shared_data %>% 
+  plot_ly(type='scatter', mode = 'markers', x = ~Date, y = ~sentiment.x, color= ~class.x, colors=c("#FFD500","#005BBB"),size = ~Data.retweet_count, hovertemplate = paste("<b>Tweet: </b> <br>",uk$Data.full_text, "<br> <b>Tweet by: </b> @",uk$Data.user.screen_name,"<br> <b>Tweet Link: </b> ",uk$Data.url,"<br> <b>Retweets: </b> ",uk$Data.retweet_count,"<br> <b>Tweet Sentiment Score: </b>", uk$sentiment.x,"<br> <b>Sentiment Phrase: </b>", uk$phrase.x, "<br> <b>User Provided Location: </b>", uk$Data.user.location,"<br> <b>Tweeted on: </b> </br>", uk$Date), autosize = TRUE, title = "Sentiment Analysis for Tweets in March 2022, Ukraine",
+                        xaxis = list(rangeslider = list(type = "date"), title = "Date"),
+                        yaxis = list(title = "Sentiment Score"),
+                        legend = list(title=list(text="Sentiment Class")))
+
+                        
+
+# Combining several selectors
+bscols(widths = c(4, 6),
+       list(
+            filter_checkbox(id = "class", label = "Sentiment Class",
+                    sharedData = shared_data, group = ~class.x),
+            filter_select(id = "phrase", label = "Sentiment Phrase",
+                    sharedData = shared_data, group = ~phrase.x),
+            filter_slider(id = "slider_sc", label = "Sentiment Score",
+                    sharedData = shared_data, column = ~sentiment.x)
+      ),
+       p)
+```
+
+Spatial Components {.storyboard data-navmenu="Explore"}
+=========================================
+
+#Most Mentioned Cities#
+```{r}
+shiny::includeHTML("/Users/dayvonnjones/Documents/Data Visualization Final Project/CM.html")
+```
+
+#User Provided GeoLocation#
+```{r}
+shiny::includeHTML("/Users/dayvonnjones/Documents/Data Visualization Final Project/UL.html")
+```
+
+Sentiment Analysis {.storyboard data-navmenu="Explore"}
+===================================== 
+
+#Emotions Count with nrc sentiment (syuzhet)#
+```{r, eval=T}
+
+col <- colorRampPalette(c("#ffd500", "#bfb72f", "#bfb72f", "#2b6f9c", "#005bbb"))
+col2 <- colorRampPalette(c("#005bbb","#2b6f9c", "#bfb72f","#bfb72f", "#ffd500" ))
+
+f1 <-  ggplot(emotion) +
+   aes(x = reorder(phrase,-count), fill = class, weight = count) +
+   geom_bar() +
+   scale_fill_manual(values = c(negative = "#FFD500", 
+  positive = "#005BBB")) +
+   labs(x = "Emotion", y = "Frequency", title = "Tweet Emotions", subtitle = "Emotions counted by Positive-Negative Classes of tweets about Russia-Ukraine War; March 2022", caption = "Data visualization by Dayonn J., @DayvonnJ, Nilay V., @nilayvinchhi., Data source: Twitter API, produced using c(ggplot2, sentiment.ai, nrc sentiment) Libraries in R 4.1.3", 
+   fill = "Sentiment Class") +
+  geom_text(aes(x=reorder(phrase,-count), y = count, label = count), nudge_y=50)
+ggplotly(p = f1)
+```
+
+#Sentiment Analysis with Bing Lexicon#
+```{r}
+text.sentiment <- tibble(text = str_to_lower(sentiment$phrase))
+
+bing_word_counts <- text.sentiment %>% unnest_tokens(output = word, input = text) %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE)
+
+bing_top_10_words_by_sentiment <- bing_word_counts %>% 
+  group_by(sentiment) %>% 
+  slice_max(order_by = n, n = 10) %>% 
+  ungroup() %>% 
+  mutate(word = reorder(word, n)) 
+
+f2 <-  bing_top_10_words_by_sentiment %>% 
+    ggplot(aes(word, n, fill = sentiment)) + 
+    geom_col(show.legend = FALSE) + 
+    facet_wrap(~sentiment, scales = "free_y") + 
+    scale_fill_manual(values = c(negative = "#FFD500", 
+  positive = "#005BBB"))+
+      coord_flip()+
+       labs(x = NULL, y = "Phrases contributing to Sentiment Class", title = "Phrases by Sentiment Class for Tweets", subtitle = "Phrases counted by Positive-Negative Classes of tweets about Russia-Ukraine War; March 2022", caption = "Data visualization by Dayonn J., @DayvonnJ, Nilay V., @nilayvinchhi., Data source: Twitter API, produced using c(ggplot2, nrc sentiment) Libraries in R 4.1.3")+
+    geom_text(aes(x=word, y = n, label = n), nudge_y=10, color= "grey")+
+  theme_minimal()
+
+ggplotly(p = f2)
+
+```
+
+#Sentiment Analysis  using Loughran Lexicon#
+```{r}
+loughran_word_counts <- text.sentiment %>% unnest_tokens(output = word, input = text) %>%
+  inner_join(get_sentiments("loughran")) %>%
+  count(word, sentiment, sort = TRUE)
+
+loughran_top_10_words_by_sentiment <- loughran_word_counts %>% 
+  group_by(sentiment) %>% 
+  slice_max(order_by = n, n = 10) %>% 
+  ungroup() %>%
+  mutate(word = reorder(word, n))
+
+f3 <-  loughran_top_10_words_by_sentiment %>% 
+    ggplot(aes(word, n, fill = sentiment)) + 
+    geom_col(show.legend = FALSE) + 
+    facet_wrap(~sentiment, scales = "free_y") + 
+     coord_flip()+
+      scale_fill_manual(values = c(negative = "#FFD500", positive = "#005BBB", uncertainty = "#eacb10", constraining = "#95a24e", litigious = "#55847d"))+
+         labs(x = NULL, y = "Phrases contributing to Sentiments", title = "Phrases contributing to Sentiments for Tweets", subtitle = "Phrases counted by Sentiments of tweets about Russia-Ukraine War; March 2022", caption = "Data visualization by Dayonn J., @DayvonnJ, Nilay V., @nilayvinchhi., Data source: Twitter API, produced using c(ggplot2, tidytext, tidyverse, syuzhet) Libraries in R 4.1.3")+
+      geom_text(aes(x=word, y = n, label = n), nudge_y=10, color= "grey")+
+    theme_minimal()
+ggplotly(p=f3)
+```
