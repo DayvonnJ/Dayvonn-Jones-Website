@@ -2,7 +2,7 @@
   {
     "path": "posts/welcome/",
     "title": "Dayvonn Jones",
-    "description": "Welcome to my blog, adn thank you for coming. I will posting projects and updates to share with you!",
+    "description": "Welcome to my blog, and thank you for coming. I will posting projects and updates to share with you!",
     "author": [
       {
         "name": "Dayvonn Jones",
@@ -13,8 +13,8 @@
     "categories": [],
     "contents": "\n\n\n\n",
     "preview": {},
-    "last_modified": "2022-05-24T20:27:41-04:00",
-    "input_file": {}
+    "last_modified": "2022-05-24T21:26:21-04:00",
+    "input_file": "welcome.knit.md"
   },
   {
     "path": "posts/2022-05-24-are-yelp-reviews-providing-insight-to-restaurants-closing-down/",

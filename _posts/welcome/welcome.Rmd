@@ -1,7 +1,7 @@
 ---
 title: "Dayvonn Jones"
 description: |
-  Welcome to my blog, adn thank you for coming. I will posting projects and updates to share with you!
+  Welcome to my blog, and thank you for coming. I will posting projects and updates to share with you!
 author:
   - name: Dayvonn Jones
     url: https://dayvonnjones.netlify.app
